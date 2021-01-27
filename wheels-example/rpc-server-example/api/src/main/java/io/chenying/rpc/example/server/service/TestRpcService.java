@@ -22,4 +22,6 @@ public interface TestRpcService {
 
     TestData<String> someMethod(TestData<String> input);
 
+    int add(Integer x, int y);
+
 }

@@ -18,11 +18,14 @@ package io.chenying.rpc.server;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 
 import io.chenying.rpc.RpcResponse;
@@ -32,6 +35,8 @@ import io.chenying.rpc.utils.ApplicationContextUtils;
 import io.chenying.rpc.utils.JsonUtils;
 
 public class RpcServerProcessor {
+
+    private final static Logger logger = LoggerFactory.getLogger(RpcServerProcessor.class);
 
     private JsonUtils json = JsonUtils.instance();
 
@@ -50,9 +55,10 @@ public class RpcServerProcessor {
 
     public RpcResponse<?> process(RpcRequestContext requestCtx) throws Exception {
         try {
-            Object result = this.invoke(requestCtx.getMethod(), requestCtx.getBodyNode());
+            Object result = this.invoke(requestCtx.getMethod(), requestCtx.getParametersNode());
             return RpcResponse.newSuccessResponse(result);
         } catch (Exception e) {
+            logger.error("RPC Server Invocation Error", e);
             return RpcResponse.newFailedResponse(-1, e.getMessage());
         }
     }
@@ -95,8 +101,51 @@ public class RpcServerProcessor {
         if (!this.rpcBeanNames.containsKey(rpcMethod) || !this.rpcMethods.containsKey(rpcMethod)) {
             throw new RuntimeException("Method Not Found");
         }
-        Object arg = this.json.read(body, this.rpcMethods.get(rpcMethod).getParameterTypes()[0]);
-        return this.rpcMethods.get(rpcMethod).invoke(this.appCtx.getBean(this.rpcBeanNames.get(rpcMethod)), arg);
+
+        Object instance = this.appCtx.getBean(this.rpcBeanNames.get(rpcMethod));
+        Method method = this.rpcMethods.get(rpcMethod);
+        int parameterCount = method.getParameterCount();
+
+        if (parameterCount == 0) {
+            return method.invoke(instance);
+        } else if (parameterCount == 1 && !body.isArray()) {
+            Object arg = this.json.read(body, method.getParameterTypes()[0]);
+            return method.invoke(instance, arg);
+        }
+
+        Class<?>[] parameterTypes = method.getParameterTypes();
+        Iterator<JsonNode> it = body.elements();
+        Object[] args =  new Object[parameterCount];
+        for (int i = 0; i < parameterCount && it.hasNext(); ++i) {
+            if (parameterTypes[i] == String.class) {
+                args[i] = it.next().asText();
+                continue;
+            } else if (!parameterTypes[i].isPrimitive()) {
+                args[i] = this.json.read(it.next(), parameterTypes[i]);
+                continue;
+            }
+
+            if (parameterTypes[i] == boolean.class) {
+                args[i] = it.next().asBoolean();
+            } else if (parameterTypes[i] == char.class) {
+                args[i] = (char) it.next().asInt();
+            } else if (parameterTypes[i] == byte.class) {
+                args[i] = (byte) it.next().asInt();
+            } else if (parameterTypes[i] == short.class) {
+                args[i] = (short) it.next().asInt();
+            } else if (parameterTypes[i] == int.class) {
+                args[i] = it.next().asInt();
+            } else if (parameterTypes[i] == long.class) {
+                args[i] = it.next().asLong();
+            } else if (parameterTypes[i] == float.class) {
+                args[i] = (float) it.next().asDouble();
+            } else if (parameterTypes[i] == double.class) {
+                args[i] = it.next().asDouble();
+            } else {
+                args[i] = null;
+            }
+        }
+        return method.invoke(instance, args);
     }
 
 }

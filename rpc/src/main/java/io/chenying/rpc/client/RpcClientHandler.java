@@ -75,7 +75,7 @@ public class RpcClientHandler extends SimpleChannelInboundHandler<String> {
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, String msg) throws Exception {
-        logger.info("Client Recv: {}", msg);
+        logger.debug("Client Recv: {}", msg);
         RpcResponseContext responseCtx = this.codec.decode(msg, new TypeReference<RpcResponseContext>() {});
         long id = responseCtx.getId();
         this.callbacks.get(id).accept(responseCtx);

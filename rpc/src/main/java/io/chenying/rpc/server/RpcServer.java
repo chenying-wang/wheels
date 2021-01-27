@@ -29,9 +29,9 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
-import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.epoll.EpollEventLoopGroup;
+import io.netty.channel.epoll.EpollServerSocketChannel;
 import io.netty.channel.socket.SocketChannel;
-import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import io.netty.handler.codec.LengthFieldPrepender;
 import io.netty.handler.codec.string.StringDecoder;
@@ -63,8 +63,8 @@ public class RpcServer {
         if (this.ch != null) {
             return this;
         }
-        this.bossGroup = new NioEventLoopGroup(1);
-        this.workerGroup = new NioEventLoopGroup();
+        this.bossGroup = new EpollEventLoopGroup(1);
+        this.workerGroup = new EpollEventLoopGroup();
         this.executorService = Executors.newFixedThreadPool(4);
         this.serverProcessor = RpcServerProcessor.create();
         this.codec = new RpcCodec();
@@ -79,7 +79,7 @@ public class RpcServer {
         try {
             ServerBootstrap b = new ServerBootstrap()
                 .group(bossGroup, workerGroup)
-                .channel(NioServerSocketChannel.class)
+                .channel(EpollServerSocketChannel.class)
                 .childHandler(new ChannelInitializer<SocketChannel>() {
                     @Override
                     public void initChannel(SocketChannel ch) throws Exception {

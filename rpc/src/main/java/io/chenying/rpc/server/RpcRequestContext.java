@@ -25,15 +25,15 @@ public class RpcRequestContext extends RpcRequest<Object> {
 
     private final static long serialVersionUID = -5014302768240598034L;
 
-    @JsonProperty(value = "body", access = Access.WRITE_ONLY)
-    private JsonNode bodyNode;
+    @JsonProperty(value = "parameters", access = Access.WRITE_ONLY)
+    private JsonNode parametersNode;
 
-    public JsonNode getBodyNode() {
-        return this.bodyNode;
+    public JsonNode getParametersNode() {
+        return parametersNode;
     }
 
-    public void setBodyNode(JsonNode bodyNode) {
-        this.bodyNode = bodyNode;
+    public void setParametersNode(JsonNode parametersNode) {
+        this.parametersNode = parametersNode;
     }
 
 }

@@ -34,11 +34,11 @@ import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
-import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.epoll.EpollEventLoopGroup;
+import io.netty.channel.epoll.EpollSocketChannel;
 import io.netty.channel.pool.AbstractChannelPoolHandler;
 import io.netty.channel.pool.ChannelPool;
 import io.netty.channel.pool.FixedChannelPool;
-import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import io.netty.handler.codec.LengthFieldPrepender;
 import io.netty.handler.codec.string.StringDecoder;
@@ -76,7 +76,7 @@ public class RpcClient implements InitializingBean {
     }
 
     public synchronized RpcClient init() {
-        this.workerGroup = new NioEventLoopGroup();
+        this.workerGroup = new EpollEventLoopGroup();
         this.registerShutdownHook();
         return this;
     }
@@ -87,7 +87,7 @@ public class RpcClient implements InitializingBean {
         }
         this.channelPool = new FixedChannelPool(new Bootstrap()
                 .group(this.workerGroup)
-                .channel(NioSocketChannel.class)
+                .channel(EpollSocketChannel.class)
                 .option(ChannelOption.SO_KEEPALIVE, true)
                 .remoteAddress(this.remoteAddress),
             new AbstractChannelPoolHandler(){

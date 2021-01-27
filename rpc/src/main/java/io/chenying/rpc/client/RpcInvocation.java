@@ -35,12 +35,11 @@ public class RpcInvocation implements MethodInterceptor {
 
     @Override
     public Object invoke(MethodInvocation invocation) throws Throwable {
-        RpcRequest<Object> msg = new RpcRequest<>();
+        RpcRequest<Object[]> msg = new RpcRequest<>();
         String rpcServiceId = new StringBuilder().append(this.rpcService.getName()).append('#')
                 .append(invocation.getMethod().getName()).toString();
         msg.setMethod(rpcServiceId);
-        // TODO multiple arguments
-        msg.setBody(invocation.getArguments()[0]);
+        msg.setParameters(invocation.getArguments());
         CompletableFuture<?> response = this.client.request(msg, invocation.getMethod().getReturnType());
         return ((RpcResponse<?>) response.get()).getBody();
     }

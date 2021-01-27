@@ -48,6 +48,10 @@ public class App {
         TestData<String> result = this.getService(appCtx).someMethod(request);
         logger.info(this.json.write(result));
 
+        int x = 210, y = 23;
+        int res = this.getService(appCtx).add(x, y);
+        logger.info("{} + {} = {}", x, y, res);
+
         try {
             Thread.currentThread().join();
         } catch (Exception e) {

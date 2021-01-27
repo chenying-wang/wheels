@@ -25,16 +25,16 @@ public class RpcRequest<T> implements Serializable {
 
     private long id;
     private String method;
-    private T body;
+    private T parameters;
 
     public RpcRequest() {
         this(StringUtils.EMPTY, null);
     }
 
-    public RpcRequest(String method, T body) {
+    public RpcRequest(String method, T parameters) {
         this.id = 0;
         this.method = method;
-        this.body = body;
+        this.parameters = parameters;
     }
 
     public long getId() {
@@ -53,12 +53,12 @@ public class RpcRequest<T> implements Serializable {
         this.method = method;
     }
 
-    public T getBody() {
-        return this.body;
+    public T getParameters() {
+        return parameters;
     }
 
-    public void setBody(T body) {
-        this.body = body;
+    public void setParameters(T parameters) {
+        this.parameters = parameters;
     }
 
 }

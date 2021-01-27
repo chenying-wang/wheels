@@ -15,27 +15,23 @@
  */
 package io.chenying.rpc.example.server.service;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import io.chenying.rpc.annotation.RpcServiceReference;
-import io.chenying.rpc.utils.JsonUtils;
 
 @RpcServiceReference
 public class TestRpcServiceImpl implements TestRpcService {
 
-    private final static Logger logger = LoggerFactory.getLogger(TestRpcServiceImpl.class);
-
-    private JsonUtils json = JsonUtils.instance();
-
     @Override
     public TestData<String> someMethod(TestData<String> input) {
-        logger.info("Service Recv: {}", this.json.write(input));
         TestData<String> body = new TestData<>();
         body.setValue(233);
         body.setText("Hello");
         body.setMsg("Client");
         return body;
+    }
+
+    @Override
+    public int add(Integer x, int y) {
+        return x + y;
     }
 
 }

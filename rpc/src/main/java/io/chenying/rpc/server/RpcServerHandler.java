@@ -46,6 +46,7 @@ public class RpcServerHandler extends SimpleChannelInboundHandler<String> {
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, String msg) throws Exception {
+        logger.debug("Server Recv: {}", msg);
         this.handle(msg)
             .thenAcceptAsync(ctx::writeAndFlush, ctx.executor());
     }

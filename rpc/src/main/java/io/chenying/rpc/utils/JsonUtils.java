@@ -100,6 +100,8 @@ public class JsonUtils {
     public <T> String write(T obj) {
         if (obj == null) {
             return JsonUtils.EMPTY_JSON;
+        } else if (obj instanceof String) {
+            return (String) obj;
         }
         try {
             return JsonUtils.mapper.writeValueAsString(obj);
@@ -124,6 +126,8 @@ public class JsonUtils {
     public <T> byte[] writeBytes(T obj) {
         if (obj == null) {
             return JsonUtils.EMPTY_JSON_BYTES;
+        } else if (obj instanceof String) {
+            return ((String) obj).getBytes(StandardCharsets.UTF_8);
         }
         try {
             return JsonUtils.mapper.writeValueAsBytes(obj);
